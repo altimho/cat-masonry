@@ -3,11 +3,15 @@ import { useLoaderData } from 'react-router';
 import { type photoListLoader } from './loader';
 import { PhotoListItem } from './PhotoListItem';
 
-export const PhotoList = () => {
+interface PhotoListProps {
+  className?: string;
+}
+
+export const PhotoList = ({ className }: PhotoListProps) => {
   const { photos } = useLoaderData<typeof photoListLoader>();
 
   return (
-    <div>
+    <div className={className}>
       {photos.map((photo) => (
         <PhotoListItem key={photo.id} photo={photo} />
       ))}
