@@ -18,6 +18,7 @@ export default tseslint.config(
       react.configs.recommended,
       reactDom.configs.recommended,
       importPlugin.flatConfigs.recommended,
+      importPlugin.flatConfigs.typescript,
     ],
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
