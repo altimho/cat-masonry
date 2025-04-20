@@ -8,12 +8,12 @@ interface PhotoListProps {
 }
 
 export const PhotoList = ({ className }: PhotoListProps) => {
-  const { photos } = useLoaderData<typeof photoListLoader>();
+  const { photoIds } = useLoaderData<typeof photoListLoader>();
 
   return (
     <div className={className}>
-      {photos.map((photo) => (
-        <PhotoListItem key={photo.id} photo={photo} />
+      {photoIds.map((photoId) => (
+        <PhotoListItem key={photoId} photoId={photoId} />
       ))}
     </div>
   );

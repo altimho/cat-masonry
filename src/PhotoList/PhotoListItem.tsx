@@ -1,13 +1,17 @@
 import { Link } from 'react-router';
 
-import { PhotoResource } from '../PexelsClient';
+import { getPhotoById } from '../photoCollection';
+import { assertIsNotNil } from '../utils/assert/assertIsNotNil';
 
 interface PhotoListItemProps {
   className?: string;
-  photo: PhotoResource;
+  photoId: number;
 }
 
-export const PhotoListItem = ({ photo, className }: PhotoListItemProps) => {
+export const PhotoListItem = ({ photoId, className }: PhotoListItemProps) => {
+  const photo = getPhotoById(photoId);
+  assertIsNotNil(photo);
+
   const url = new URL(photo.src.original);
   url.searchParams.set('auto', 'compress');
   url.searchParams.set('cs', 'tinysrgb');
