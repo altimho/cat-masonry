@@ -1,12 +1,13 @@
 import { PexelsApiClient } from '../PexelsClient';
-import { photoCollection, savePhotosToCollection } from '../photoCollection';
+import { savePhotosToCollection } from '../photoCollection';
 
 const pexelsClient = new PexelsApiClient();
 
 export const photoListLoader = async () => {
   const { photos } = await pexelsClient.getPhotoList();
+  const photoIds = savePhotosToCollection(photos);
 
   return {
-    photoIds: savePhotosToCollection(photos),
+    photoIds,
   };
 };
