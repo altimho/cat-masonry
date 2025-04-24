@@ -2,6 +2,8 @@ import { useFetcher, useLoaderData } from 'react-router';
 import { css } from '@emotion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { useResize } from '../hooks/useResize';
+
 import { type photoListLoader } from './loader';
 import { PhotoListItem } from './PhotoListItem';
 import { buildMasonry } from './utils/buildMasonry';
@@ -10,6 +12,7 @@ const COL_WIDTH = 350;
 
 const photoListCss = css({
   position: 'relative',
+  width: '100%',
 });
 
 const photoListItemCss = css({
@@ -24,12 +27,28 @@ export const PhotoList = () => {
   const fetcher = useFetcher<typeof photoListLoader>();
   const { photoIds = initialPhotoIds, page = 1 } = fetcher.data ?? {};
 
+  const [cols, setCols] = useState(1);
+  const resizeCallback = useCallback(
+    (entry: ResizeObserverEntry | undefined) => {
+      if (!entry?.contentRect.width) {
+        return;
+      }
+
+      const newCols = Math.floor(entry.contentRect.width / COL_WIDTH);
+      if (cols !== newCols) {
+        setCols(newCols);
+      }
+    },
+    [cols, setCols],
+  );
+  const resizableRef = useResize(resizeCallback);
+
   const [begin, setBegin] = useState(0);
   const [end, setEnd] = useState(0);
 
   const masonry = useMemo(() => {
-    return buildMasonry(5, photoIds, COL_WIDTH);
-  }, [photoIds]);
+    return buildMasonry(cols, photoIds, COL_WIDTH);
+  }, [photoIds, cols]);
 
   const items = useMemo(
     () => masonry.getVisibleItems(begin, end),
@@ -48,7 +67,9 @@ export const PhotoList = () => {
     const windowBottomLine = window.scrollY + window.innerHeight;
 
     if (windowBottomLine >= masonry.lowestHeight) {
-      fetcher.submit({ page: page + 1 });
+      if (fetcher.state === 'idle') {
+        // fetcher.submit({ page: page + 1 });
+      }
     }
   }, [masonry, fetcher, page]);
 
@@ -56,10 +77,8 @@ export const PhotoList = () => {
     scrollCallback();
 
     window.addEventListener('scroll', scrollCallback);
-    window.addEventListener('resize', scrollCallback);
     return () => {
       window.removeEventListener('scroll', scrollCallback);
-      window.addEventListener('resize', scrollCallback);
     };
   }, [scrollCallback]);
 
@@ -67,7 +86,10 @@ export const PhotoList = () => {
     <div
       css={photoListCss}
       style={{ height: masonry.height }}
-      ref={containerRef}
+      ref={(node) => {
+        containerRef.current = node;
+        resizableRef.current = node;
+      }}
     >
       {items.map(({ id, top, column }) => {
         return (
