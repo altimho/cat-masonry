@@ -3,12 +3,14 @@ import { css } from '@emotion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useResize } from '../hooks/useResize';
+import { useIntersect } from '../hooks/useIntersect';
 
 import { type photoListLoader } from './loader';
 import { PhotoListItem } from './PhotoListItem';
 import { buildMasonry } from './utils/buildMasonry';
 
 const COL_WIDTH = 350;
+const LOAD_MORE_GAP = 200;
 
 const photoListCss = css({
   position: 'relative',
@@ -18,6 +20,13 @@ const photoListCss = css({
 const photoListItemCss = css({
   position: 'absolute',
   width: COL_WIDTH,
+});
+
+const anchorCss = css({
+  position: 'absolute',
+  overflow: 'hidden',
+  width: 0,
+  height: 0,
 });
 
 export const PhotoList = () => {
@@ -82,6 +91,16 @@ export const PhotoList = () => {
     };
   }, [scrollCallback]);
 
+  const intersectCallback = useCallback(
+    (entry: IntersectionObserverEntry | undefined) => {
+      if ((entry?.intersectionRatio ?? 0) > 0) {
+        fetcher.submit({ page: page + 1 });
+      }
+    },
+    [page, fetcher],
+  );
+  const intersectRef = useIntersect(intersectCallback);
+
   return (
     <div
       css={photoListCss}
@@ -102,6 +121,15 @@ export const PhotoList = () => {
           </div>
         );
       })}
+      <div
+        css={anchorCss}
+        ref={(node) => {
+          intersectRef.current = node;
+        }}
+        style={{
+          top: masonry.lowestHeight - LOAD_MORE_GAP,
+        }}
+      ></div>
     </div>
   );
 };
