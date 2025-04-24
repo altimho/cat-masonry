@@ -2,7 +2,7 @@ import { useFetcher, useLoaderData, useLocation } from 'react-router';
 import { css } from '@emotion/react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { useIntersect } from '../hooks/useIntersect';
+import { useIntersect } from '../../hooks/useIntersect';
 
 import { type photoListLoader } from './loader';
 import { PhotoWithLink } from './PhotoWithLink';

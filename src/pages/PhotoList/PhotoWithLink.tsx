@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router';
 import { css } from '@emotion/react';
 
-import { getPhotoById } from '../photoCollection';
-import { assertIsNotNil } from '../utils/assert/assertIsNotNil';
+import { photoCollection } from '../../photoCollection';
+import { assertIsNotNil } from '../../utils/assert/assertIsNotNil';
 
 interface PhotoWithLinkProps {
   photoId: number;
@@ -15,7 +15,7 @@ const imgCss = css({
 });
 
 const PhotoWithLinkBase = ({ photoId, imgWidth }: PhotoWithLinkProps) => {
-  const photo = getPhotoById(photoId);
+  const photo = photoCollection.getPhotoById(photoId);
   assertIsNotNil(photo);
 
   const url = new URL(photo.src.original);

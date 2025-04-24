@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs } from 'react-router';
 
-import { PexelsApiClient } from '../PexelsClient';
-import { savePhotosToCollection } from '../photoCollection';
+import { PexelsApiClient } from '../../PexelsClient';
+import { photoCollection } from '../../photoCollection';
 
 const pexelsClient = new PexelsApiClient();
 
@@ -13,7 +13,7 @@ export const photoListLoader = async ({ request }: LoaderFunctionArgs) => {
   const { photos, page } = await pexelsClient.getPhotoList({
     page: requestPage,
   });
-  const photoIds = savePhotosToCollection(photos);
+  const photoIds = photoCollection.savePhotosToCollection(photos);
 
   return {
     photoIds,

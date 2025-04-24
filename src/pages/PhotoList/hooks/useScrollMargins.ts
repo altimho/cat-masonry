@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useScroll } from '../../hooks/useScroll';
+import { useScroll } from '../../../hooks/useScroll';
 
 interface UseScrollMarginsProps {
   visibilityGap?: number;

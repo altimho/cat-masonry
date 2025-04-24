@@ -1,15 +1,3 @@
-import { PhotoResource } from '../PexelsClient';
+import { PhotoCollection } from './PhotoCollection';
 
-const photoCollection = new Map<number, PhotoResource>();
-
-export const savePhotosToCollection = (photos: PhotoResource[]) => {
-  photos.map((photo) => {
-    photoCollection.set(photo.id, photo);
-  });
-
-  return Array.from(photoCollection.keys());
-};
-
-export const getPhotoById = (id: number) => {
-  return photoCollection.get(id);
-};
+export const photoCollection = PhotoCollection.get();

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import { useResize } from '../../hooks/useResize';
+import { useResize } from '../../../hooks/useResize';
 
 interface UseFlexibleColsProps {
   colWidth: number;

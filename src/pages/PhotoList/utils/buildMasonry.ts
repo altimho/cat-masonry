@@ -1,5 +1,5 @@
-import { getPhotoById } from '../../photoCollection';
-import { Masonry } from '../../Masonry';
+import { photoCollection } from '../../../photoCollection';
+import { Masonry } from '../../../Masonry';
 
 export const buildMasonry = (
   colsNumber: number,
@@ -9,7 +9,7 @@ export const buildMasonry = (
   const masonry = new Masonry(colsNumber);
 
   ids.forEach((id) => {
-    const photo = getPhotoById(id);
+    const photo = photoCollection.getPhotoById(id);
     if (photo) {
       const k = photo.width / width;
       masonry.push(photo.id, Math.round(photo.height / k));

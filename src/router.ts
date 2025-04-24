@@ -1,8 +1,8 @@
 import { createBrowserRouter } from 'react-router';
 
 import { App } from './App.tsx';
-import { PhotoList, photoListLoader } from './PhotoList';
-import { PhotoDetails, photoDetailsLoader } from './PhotoDetails';
+import { PhotoList, photoListLoader } from './pages/PhotoList';
+import { PhotoDetails, photoDetailsLoader } from './pages/PhotoDetails';
 
 export const router = createBrowserRouter([
   {

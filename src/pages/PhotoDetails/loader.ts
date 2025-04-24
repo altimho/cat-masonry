@@ -1,8 +1,8 @@
 import { LoaderFunctionArgs } from 'react-router';
 
-import { PexelsApiClient } from '../PexelsClient';
-import { assertIsString } from '../utils/assert/assertIsString';
-import { getPhotoById, savePhotosToCollection } from '../photoCollection';
+import { PexelsApiClient } from '../../PexelsClient';
+import { assertIsString } from '../../utils/assert/assertIsString';
+import { photoCollection } from '../../photoCollection';
 
 const pexelsClient = new PexelsApiClient();
 
@@ -12,7 +12,7 @@ export const photoDetailsLoader = async ({
   assertIsString(photoId);
   const id = Number(photoId);
 
-  const photoFromCollection = getPhotoById(id);
+  const photoFromCollection = photoCollection.getPhotoById(id);
   if (photoFromCollection) {
     return {
       photo: photoFromCollection,
@@ -20,7 +20,7 @@ export const photoDetailsLoader = async ({
   }
 
   const photoFromApi = await pexelsClient.getPhoto(id);
-  savePhotosToCollection([photoFromApi]);
+  photoCollection.savePhotosToCollection([photoFromApi]);
 
   return {
     photo: photoFromApi,
