@@ -45,6 +45,10 @@ class Masonry {
     return Math.max(...this.columns.map((column) => column.height));
   }
 
+  get lowestHeight() {
+    return Math.min(...this.columns.map((column) => column.height));
+  }
+
   push(id: number, height: number) {
     const lowest = this.columns.reduce((result, column) => {
       return column.height < result.height ? column : result;

@@ -1,4 +1,4 @@
-import { useLoaderData } from 'react-router';
+import { useFetcher, useLoaderData } from 'react-router';
 import { css } from '@emotion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -19,16 +19,38 @@ const photoListItemCss = css({
 
 export const PhotoList = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { photoIds } = useLoaderData<typeof photoListLoader>();
+
+  const { photoIds: initialPhotoIds } = useLoaderData<typeof photoListLoader>();
+  const fetcher = useFetcher<typeof photoListLoader>();
+  const { photoIds = initialPhotoIds, page = 1 } = fetcher.data ?? {};
 
   const [begin, setBegin] = useState(0);
   const [end, setEnd] = useState(0);
 
+  const masonry = useMemo(() => {
+    return buildMasonry(5, photoIds, COL_WIDTH);
+  }, [photoIds]);
+
+  const items = useMemo(
+    () => masonry.getVisibleItems(begin, end),
+    [begin, end, masonry],
+  );
+
   const scrollCallback = useCallback(() => {
     const listTop = containerRef.current?.offsetTop ?? 0;
-    setBegin(window.scrollY - listTop - 200);
-    setEnd(window.scrollY - listTop + window.innerHeight + 200);
-  }, []);
+
+    const topMargin = window.scrollY - listTop - 200;
+    const bottomMargin = window.scrollY - listTop + window.innerHeight + 200;
+
+    setBegin(topMargin);
+    setEnd(bottomMargin);
+
+    const windowBottomLine = window.scrollY + window.innerHeight;
+
+    if (windowBottomLine >= masonry.lowestHeight) {
+      fetcher.submit({ page: page + 1 });
+    }
+  }, [masonry, fetcher, page]);
 
   useEffect(() => {
     scrollCallback();
@@ -40,15 +62,6 @@ export const PhotoList = () => {
       window.addEventListener('resize', scrollCallback);
     };
   }, [scrollCallback]);
-
-  const masonry = useMemo(() => {
-    return buildMasonry(5, photoIds, COL_WIDTH);
-  }, [photoIds]);
-
-  const items = useMemo(
-    () => masonry.getVisibleItems(begin, end),
-    [begin, end, masonry],
-  );
 
   return (
     <div

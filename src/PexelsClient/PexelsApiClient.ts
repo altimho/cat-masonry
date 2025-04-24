@@ -1,21 +1,28 @@
+import { createSearchParams } from 'react-router';
+
 import { PhotoResource } from './types/PhotoResource.ts';
 import { PhotoList } from './types/PhotoList.ts';
 
 interface GetPhotoList {
   query?: string;
   perPage?: number;
+  page?: number;
 }
 
 export class PexelsApiClient {
   async getPhotoList(params: GetPhotoList = {}) {
-    const { query = 'funny cats', perPage = 80 } = params;
+    const { query = 'funny cats', perPage = 80, page } = params;
 
-    const queryString = encodeURIComponent(query);
-    const perPageString = perPage.toString();
+    const searchParams = createSearchParams({
+      query,
+      per_page: perPage.toString(),
+    });
 
-    const response = await fetch(
-      `/api/search?query=${queryString}&per_page=${perPageString}`,
-    );
+    if (page) {
+      searchParams.set('page', page.toString());
+    }
+
+    const response = await fetch(`/api/search?${searchParams}`);
 
     return response.json() as Promise<PhotoList>;
   }

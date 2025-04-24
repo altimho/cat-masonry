@@ -3,11 +3,11 @@ import { PhotoResource } from '../PexelsClient';
 const photoCollection = new Map<number, PhotoResource>();
 
 export const savePhotosToCollection = (photos: PhotoResource[]) => {
-  return photos.map((photo) => {
+  photos.map((photo) => {
     photoCollection.set(photo.id, photo);
-
-    return photo.id;
   });
+
+  return Array.from(photoCollection.keys());
 };
 
 export const getPhotoById = (id: number) => {
