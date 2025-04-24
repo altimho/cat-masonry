@@ -1,14 +1,14 @@
 import { useFetcher, useLoaderData } from 'react-router';
 import { css } from '@emotion/react';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
-import { useResize } from '../hooks/useResize';
 import { useIntersect } from '../hooks/useIntersect';
-import { useScroll } from '../hooks/useScroll';
 
 import { type photoListLoader } from './loader';
 import { PhotoListItem } from './PhotoListItem';
 import { buildMasonry } from './utils/buildMasonry';
+import { useFlexibleCols } from './hooks/useFlexibleCols';
+import { useScrollMargins } from './hooks/useScrollMargins';
 
 const COL_WIDTH = 350;
 const VISIBILITY_GAP = 200;
@@ -32,46 +32,20 @@ const anchorCss = css({
 });
 
 export const PhotoList = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
   const { photoIds: initialPhotoIds } = useLoaderData<typeof photoListLoader>();
+
   const fetcher = useFetcher<typeof photoListLoader>();
   const { photoIds = initialPhotoIds, page = 1 } = fetcher.data ?? {};
 
-  const [cols, setCols] = useState(1);
-  const resizeCallback = useCallback(
-    (entry: ResizeObserverEntry | undefined) => {
-      if (!entry?.contentRect.width) {
-        return;
-      }
-
-      const newCols = Math.floor(entry.contentRect.width / COL_WIDTH);
-      if (cols !== newCols) {
-        setCols(newCols);
-      }
-    },
-    [cols, setCols],
-  );
-  const resizableRef = useResize(resizeCallback);
+  const { resizableRef, cols } = useFlexibleCols({ colWidth: COL_WIDTH });
 
   const masonry = useMemo(() => {
     return buildMasonry(cols, photoIds, COL_WIDTH);
   }, [photoIds, cols]);
 
-  const [begin, setBegin] = useState(0);
-  const [end, setEnd] = useState(Infinity);
-
-  const scrollCallback = useCallback(() => {
-    const listTop = containerRef.current?.offsetTop ?? 0;
-
-    const topMargin = window.scrollY - listTop - VISIBILITY_GAP;
-    const bottomMargin =
-      window.scrollY - listTop + window.innerHeight + VISIBILITY_GAP;
-
-    setBegin(topMargin);
-    setEnd(bottomMargin);
-  }, [setBegin, setEnd]);
-  useScroll(scrollCallback);
+  const { containerRef, begin, end } = useScrollMargins({
+    visibilityGap: VISIBILITY_GAP,
+  });
 
   const items = useMemo(
     () => masonry.getVisibleItems(begin, end),
@@ -110,11 +84,11 @@ export const PhotoList = () => {
       })}
       <div
         css={anchorCss}
-        ref={(node) => {
-          intersectRef.current = node;
-        }}
         style={{
           top: masonry.lowestHeight - LOAD_MORE_GAP,
+        }}
+        ref={(node) => {
+          intersectRef.current = node;
         }}
       ></div>
     </div>
