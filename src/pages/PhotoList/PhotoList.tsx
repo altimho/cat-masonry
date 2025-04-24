@@ -36,7 +36,7 @@ export const PhotoList = () => {
   const fetcher = useFetcher<typeof photoListLoader>();
   const { photoIds = initialPhotoIds, page = 1 } = fetcher.data ?? {};
 
-  const { resizableRef, cols } = useFlexibleCols<HTMLDivElement>({
+  const { resizableRef, cols, colWidth } = useFlexibleCols<HTMLDivElement>({
     colWidth: COL_WIDTH,
   });
 
@@ -52,7 +52,7 @@ export const PhotoList = () => {
   }, [masonryIsRendered]);
 
   const masonry = useMemo(() => {
-    return buildMasonry(cols, photoIds, COL_WIDTH);
+    return buildMasonry(cols, photoIds, colWidth);
   }, [photoIds, cols]);
 
   const { containerRef, begin, end } = useScrollMargins<HTMLDivElement>({
@@ -90,7 +90,7 @@ export const PhotoList = () => {
       <div
         ref={containerRef}
         css={containerCss}
-        style={{ height: masonry.height, width: COL_WIDTH * cols }}
+        style={{ height: masonry.height, width: colWidth * cols }}
       >
         {items.map(({ id, top, height, column }) => {
           const ref = id.toString() === idToScroll ? hashItemRef : undefined;
@@ -100,9 +100,9 @@ export const PhotoList = () => {
               key={id}
               ref={ref}
               top={top}
-              left={column * COL_WIDTH}
+              left={column * colWidth}
               height={height}
-              width={COL_WIDTH}
+              width={colWidth}
             >
               <PhotoWithLink photoId={id} imgWidth={COL_WIDTH} />
             </PhotoListItem>
