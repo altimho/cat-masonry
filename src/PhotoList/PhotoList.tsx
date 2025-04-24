@@ -61,7 +61,11 @@ export const PhotoList = () => {
 
   const items = useMemo(() => {
     const items = masonry.getVisibleItems(begin, end);
-    if (idToScroll) {
+
+    if (
+      idToScroll &&
+      items.findIndex((item) => item.id === Number(idToScroll)) < 0
+    ) {
       const item = masonry.getItemById(Number(idToScroll));
       if (item) {
         items.push(item);
@@ -69,7 +73,7 @@ export const PhotoList = () => {
     }
 
     return items;
-  }, [begin, end, masonry]);
+  }, [begin, end, masonry, idToScroll]);
 
   const intersectCallback = useCallback(
     (entry: IntersectionObserverEntry | undefined) => {
