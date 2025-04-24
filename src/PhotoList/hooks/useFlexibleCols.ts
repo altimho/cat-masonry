@@ -6,8 +6,10 @@ interface UseFlexibleColsProps {
   colWidth: number;
 }
 
-export const useFlexibleCols = ({ colWidth }: UseFlexibleColsProps) => {
-  const [cols, setCols] = useState(1);
+export const useFlexibleCols = <T extends HTMLElement>({
+  colWidth,
+}: UseFlexibleColsProps) => {
+  const [cols, setCols] = useState(0);
 
   const resizeCallback = useCallback(
     (entry: ResizeObserverEntry | undefined) => {
@@ -23,7 +25,7 @@ export const useFlexibleCols = ({ colWidth }: UseFlexibleColsProps) => {
     [cols, setCols, colWidth],
   );
 
-  const resizableRef = useResize(resizeCallback);
+  const resizableRef = useResize<T>(resizeCallback);
 
   return {
     resizableRef,

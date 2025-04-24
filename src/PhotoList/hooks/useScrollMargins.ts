@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useScroll } from '../../hooks/useScroll';
 
@@ -6,13 +6,15 @@ interface UseScrollMarginsProps {
   visibilityGap?: number;
 }
 
-export const useScrollMargins = (props: UseScrollMarginsProps = {}) => {
+export const useScrollMargins = <T extends HTMLElement>(
+  props: UseScrollMarginsProps = {},
+) => {
   const { visibilityGap = 0 } = props;
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<T>(null);
 
   const [begin, setBegin] = useState(0);
-  const [end, setEnd] = useState(Infinity);
+  const [end, setEnd] = useState(0);
 
   const scrollCallback = useCallback(() => {
     const listTop = containerRef.current?.offsetTop ?? 0;
@@ -26,6 +28,10 @@ export const useScrollMargins = (props: UseScrollMarginsProps = {}) => {
   }, [setBegin, setEnd, visibilityGap]);
 
   useScroll(scrollCallback);
+
+  useEffect(() => {
+    scrollCallback();
+  }, [scrollCallback]);
 
   return {
     containerRef,

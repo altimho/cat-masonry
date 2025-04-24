@@ -1,6 +1,6 @@
-import { useFetcher, useLoaderData } from 'react-router';
+import { useFetcher, useLoaderData, useLocation } from 'react-router';
 import { css } from '@emotion/react';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useIntersect } from '../hooks/useIntersect';
 
@@ -10,13 +10,16 @@ import { buildMasonry } from './utils/buildMasonry';
 import { useFlexibleCols } from './hooks/useFlexibleCols';
 import { useScrollMargins } from './hooks/useScrollMargins';
 
-const COL_WIDTH = 350;
+const COL_WIDTH = 300;
 const VISIBILITY_GAP = 200;
 const LOAD_MORE_GAP = 200;
 
-const photoListCss = css({
-  position: 'relative',
+const wrapperCss = css({
   width: '100%',
+});
+
+const containerCss = css({
+  position: 'relative',
 });
 
 const photoListItemCss = css({
@@ -37,20 +40,40 @@ export const PhotoList = () => {
   const fetcher = useFetcher<typeof photoListLoader>();
   const { photoIds = initialPhotoIds, page = 1 } = fetcher.data ?? {};
 
-  const { resizableRef, cols } = useFlexibleCols({ colWidth: COL_WIDTH });
+  const { resizableRef, cols } = useFlexibleCols<HTMLDivElement>({
+    colWidth: COL_WIDTH,
+  });
+
+  const { hash } = useLocation();
+  const idToScroll = hash.slice(1);
+  const hashItemRef = useRef<HTMLDivElement>(null);
+  const masonryIsRendered = cols > 0;
+
+  useEffect(() => {
+    if (masonryIsRendered) {
+      hashItemRef.current?.scrollIntoView();
+    }
+  }, [masonryIsRendered]);
 
   const masonry = useMemo(() => {
     return buildMasonry(cols, photoIds, COL_WIDTH);
   }, [photoIds, cols]);
 
-  const { containerRef, begin, end } = useScrollMargins({
+  const { containerRef, begin, end } = useScrollMargins<HTMLDivElement>({
     visibilityGap: VISIBILITY_GAP,
   });
 
-  const items = useMemo(
-    () => masonry.getVisibleItems(begin, end),
-    [begin, end, masonry],
-  );
+  const items = useMemo(() => {
+    const items = masonry.getVisibleItems(begin, end);
+    if (idToScroll) {
+      const item = masonry.getItemById(Number(idToScroll));
+      if (item) {
+        items.push(item);
+      }
+    }
+
+    return items;
+  }, [begin, end, masonry]);
 
   const intersectCallback = useCallback(
     (entry: IntersectionObserverEntry | undefined) => {
@@ -60,37 +83,40 @@ export const PhotoList = () => {
     },
     [page, fetcher],
   );
-  const intersectRef = useIntersect(intersectCallback);
+  const intersectRef = useIntersect<HTMLDivElement>(intersectCallback);
 
   return (
-    <div
-      css={photoListCss}
-      style={{ height: masonry.height }}
-      ref={(node) => {
-        containerRef.current = node;
-        resizableRef.current = node;
-      }}
-    >
-      {items.map(({ id, top, column }) => {
-        return (
-          <div
-            key={id}
-            css={photoListItemCss}
-            style={{ top, left: column * COL_WIDTH }}
-          >
-            <PhotoListItem photoId={id} width={COL_WIDTH} />
-          </div>
-        );
-      })}
+    <div ref={resizableRef} css={wrapperCss}>
       <div
-        css={anchorCss}
-        style={{
-          top: masonry.lowestHeight - LOAD_MORE_GAP,
-        }}
-        ref={(node) => {
-          intersectRef.current = node;
-        }}
-      ></div>
+        css={containerCss}
+        style={{ height: masonry.height, width: COL_WIDTH * cols }}
+        ref={containerRef}
+      >
+        {items.map(({ id, top, column }) => {
+          const ref = id.toString() === idToScroll ? hashItemRef : undefined;
+
+          return (
+            <div
+              ref={ref}
+              key={id}
+              css={photoListItemCss}
+              style={{
+                top,
+                left: column * COL_WIDTH,
+              }}
+            >
+              <PhotoListItem photoId={id} width={COL_WIDTH} />
+            </div>
+          );
+        })}
+        <div
+          css={anchorCss}
+          style={{
+            top: masonry.lowestHeight - LOAD_MORE_GAP,
+          }}
+          ref={intersectRef}
+        ></div>
+      </div>
     </div>
   );
 };

@@ -28,6 +28,10 @@ class Column {
       (item) => item.top + item.height >= begin && item.top <= end,
     );
   }
+
+  getItemById(id: number) {
+    return this.items.find((item) => item.id === id);
+  }
 }
 
 interface MasonryIem extends ColumnItem {
@@ -42,14 +46,22 @@ class Masonry {
   }
 
   get height() {
-    return Math.max(...this.columns.map((column) => column.height));
+    return this.columns.length
+      ? Math.max(...this.columns.map((column) => column.height))
+      : 0;
   }
 
   get lowestHeight() {
-    return Math.min(...this.columns.map((column) => column.height));
+    return this.columns.length
+      ? Math.min(...this.columns.map((column) => column.height))
+      : 0;
   }
 
   push(id: number, height: number) {
+    if (this.columns.length === 0) {
+      return;
+    }
+
     const lowest = this.columns.reduce((result, column) => {
       return column.height < result.height ? column : result;
     }, this.columns[0]);
@@ -64,6 +76,15 @@ class Masonry {
         .map((a) => ({ ...a, column: columnIdx })),
     );
   }
+
+  getItemById(id: number): MasonryIem | undefined {
+    for (let i = 0; i < this.columns.length; i++) {
+      const item = this.columns[i].getItemById(id);
+      if (item) {
+        return { ...item, column: i };
+      }
+    }
+  }
 }
 
 export const buildMasonry = (
@@ -72,6 +93,7 @@ export const buildMasonry = (
   width: number,
 ) => {
   const masonry = new Masonry(colsNumber);
+
   ids.forEach((id) => {
     const photo = getPhotoById(id);
     if (photo) {
@@ -79,5 +101,6 @@ export const buildMasonry = (
       masonry.push(photo.id, Math.round(photo.height / k));
     }
   });
+
   return masonry;
 };

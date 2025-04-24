@@ -2,8 +2,10 @@ import { useEffect, useRef } from 'react';
 
 type IntersectCallback = (entry?: IntersectionObserverEntry) => void;
 
-export const useIntersect = (callback: IntersectCallback) => {
-  const ref = useRef<HTMLElement>(null);
+export const useIntersect = <T extends HTMLElement>(
+  callback: IntersectCallback,
+) => {
+  const ref = useRef<T>(null);
 
   useEffect(() => {
     const element = ref.current;
