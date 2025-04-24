@@ -1,15 +1,17 @@
 import { useFetcher, useLoaderData } from 'react-router';
 import { css } from '@emotion/react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { useResize } from '../hooks/useResize';
 import { useIntersect } from '../hooks/useIntersect';
+import { useScroll } from '../hooks/useScroll';
 
 import { type photoListLoader } from './loader';
 import { PhotoListItem } from './PhotoListItem';
 import { buildMasonry } from './utils/buildMasonry';
 
 const COL_WIDTH = 350;
+const VISIBILITY_GAP = 200;
 const LOAD_MORE_GAP = 200;
 
 const photoListCss = css({
@@ -52,44 +54,29 @@ export const PhotoList = () => {
   );
   const resizableRef = useResize(resizeCallback);
 
-  const [begin, setBegin] = useState(0);
-  const [end, setEnd] = useState(0);
-
   const masonry = useMemo(() => {
     return buildMasonry(cols, photoIds, COL_WIDTH);
   }, [photoIds, cols]);
+
+  const [begin, setBegin] = useState(0);
+  const [end, setEnd] = useState(Infinity);
+
+  const scrollCallback = useCallback(() => {
+    const listTop = containerRef.current?.offsetTop ?? 0;
+
+    const topMargin = window.scrollY - listTop - VISIBILITY_GAP;
+    const bottomMargin =
+      window.scrollY - listTop + window.innerHeight + VISIBILITY_GAP;
+
+    setBegin(topMargin);
+    setEnd(bottomMargin);
+  }, [setBegin, setEnd]);
+  useScroll(scrollCallback);
 
   const items = useMemo(
     () => masonry.getVisibleItems(begin, end),
     [begin, end, masonry],
   );
-
-  const scrollCallback = useCallback(() => {
-    const listTop = containerRef.current?.offsetTop ?? 0;
-
-    const topMargin = window.scrollY - listTop - 200;
-    const bottomMargin = window.scrollY - listTop + window.innerHeight + 200;
-
-    setBegin(topMargin);
-    setEnd(bottomMargin);
-
-    const windowBottomLine = window.scrollY + window.innerHeight;
-
-    if (windowBottomLine >= masonry.lowestHeight) {
-      if (fetcher.state === 'idle') {
-        // fetcher.submit({ page: page + 1 });
-      }
-    }
-  }, [masonry, fetcher, page]);
-
-  useEffect(() => {
-    scrollCallback();
-
-    window.addEventListener('scroll', scrollCallback);
-    return () => {
-      window.removeEventListener('scroll', scrollCallback);
-    };
-  }, [scrollCallback]);
 
   const intersectCallback = useCallback(
     (entry: IntersectionObserverEntry | undefined) => {
