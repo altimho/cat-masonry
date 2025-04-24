@@ -5,10 +5,11 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useIntersect } from '../hooks/useIntersect';
 
 import { type photoListLoader } from './loader';
-import { PhotoListItem } from './PhotoListItem';
+import { PhotoWithLink } from './PhotoWithLink';
 import { buildMasonry } from './utils/buildMasonry';
 import { useFlexibleCols } from './hooks/useFlexibleCols';
 import { useScrollMargins } from './hooks/useScrollMargins';
+import { PhotoListItem } from './PhotoListItem';
 
 const COL_WIDTH = 300;
 const VISIBILITY_GAP = 200;
@@ -20,11 +21,6 @@ const wrapperCss = css({
 
 const containerCss = css({
   position: 'relative',
-});
-
-const photoListItemCss = css({
-  position: 'absolute',
-  width: COL_WIDTH,
 });
 
 const anchorCss = css({
@@ -88,34 +84,33 @@ export const PhotoList = () => {
   return (
     <div ref={resizableRef} css={wrapperCss}>
       <div
+        ref={containerRef}
         css={containerCss}
         style={{ height: masonry.height, width: COL_WIDTH * cols }}
-        ref={containerRef}
       >
-        {items.map(({ id, top, column }) => {
+        {items.map(({ id, top, height, column }) => {
           const ref = id.toString() === idToScroll ? hashItemRef : undefined;
 
           return (
-            <div
-              ref={ref}
+            <PhotoListItem
               key={id}
-              css={photoListItemCss}
-              style={{
-                top,
-                left: column * COL_WIDTH,
-              }}
+              ref={ref}
+              top={top}
+              left={column * COL_WIDTH}
+              height={height}
+              width={COL_WIDTH}
             >
-              <PhotoListItem photoId={id} width={COL_WIDTH} />
-            </div>
+              <PhotoWithLink photoId={id} imgWidth={COL_WIDTH} />
+            </PhotoListItem>
           );
         })}
         <div
+          ref={intersectRef}
           css={anchorCss}
           style={{
             top: masonry.lowestHeight - LOAD_MORE_GAP,
           }}
-          ref={intersectRef}
-        ></div>
+        />
       </div>
     </div>
   );

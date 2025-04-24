@@ -1,28 +1,45 @@
-import React from 'react';
-import { Link } from 'react-router';
-
-import { getPhotoById } from '../photoCollection';
-import { assertIsNotNil } from '../utils/assert/assertIsNotNil';
+import { css } from '@emotion/react';
 
 interface PhotoListItemProps {
-  photoId: number;
+  ref?: React.Ref<HTMLDivElement> | null;
+  top: number;
+  left: number;
+  height: number;
   width: number;
 }
 
-const PhotoListItemBase = ({ photoId, width }: PhotoListItemProps) => {
-  const photo = getPhotoById(photoId);
-  assertIsNotNil(photo);
+const photoListItemWrappeerCss = css({
+  position: 'absolute',
+});
 
-  const url = new URL(photo.src.original);
-  url.searchParams.set('auto', 'compress');
-  url.searchParams.set('cs', 'tinysrgb');
-  url.searchParams.set('w', width.toString());
+const photoListItemCss = css({
+  width: '100%',
+  height: '100%',
+  border: '2px solid white',
+  margin: '-2px',
+  background: 'lightgray',
+});
 
+export const PhotoListItem = ({
+  children,
+  ref,
+  top,
+  left,
+  height,
+  width,
+}: React.PropsWithChildren<PhotoListItemProps>) => {
   return (
-    <Link to={{ pathname: `/${photo.id.toString()}` }}>
-      <img src={url.toString()} alt={photo.alt} />
-    </Link>
+    <div
+      ref={ref}
+      css={photoListItemWrappeerCss}
+      style={{
+        top,
+        left,
+        height,
+        width,
+      }}
+    >
+      <div css={photoListItemCss}>{children}</div>
+    </div>
   );
 };
-
-export const PhotoListItem = React.memo(PhotoListItemBase);
