@@ -9,8 +9,16 @@ export const router = createBrowserRouter([
     path: '/',
     Component: App,
     children: [
-      { index: true, Component: PhotoList, loader: photoListLoader },
-      { path: ':photoId', Component: PhotoDetails, loader: photoDetailsLoader },
+      {
+        index: true,
+        Component: PhotoList,
+        loader: photoListLoader,
+      },
+      {
+        path: ':photoId',
+        Component: PhotoDetails,
+        loader: photoDetailsLoader,
+      },
     ],
   },
 ]);
