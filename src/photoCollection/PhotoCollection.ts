@@ -1,4 +1,6 @@
-import { type PhotoResource } from '../PexelsClient';
+interface PhotoResource {
+  id: number;
+}
 
 export class PhotoCollection {
   protected static _instance = new PhotoCollection();
@@ -7,19 +9,25 @@ export class PhotoCollection {
     return this._instance;
   }
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   protected photoCollection = new Map<number, PhotoResource>();
 
-  savePhotosToCollection = (photos: PhotoResource[]) => {
+  savePhotosToCollection(photos: PhotoResource[]) {
     photos.map((photo) => {
       this.photoCollection.set(photo.id, photo);
     });
 
     return Array.from(this.photoCollection.keys());
-  };
+  }
 
-  getPhotoById = (id: number) => {
+  getPhotoById(id: number) {
     return this.photoCollection.get(id);
-  };
+  }
+
+  clear() {
+    this.photoCollection.clear();
+  }
 }
