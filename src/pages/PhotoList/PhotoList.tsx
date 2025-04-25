@@ -1,6 +1,7 @@
 import { useFetcher, useLoaderData } from 'react-router';
 import { css } from '@emotion/react';
 import { useCallback, useMemo } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 
 import { useIntersect } from '../../hooks/useIntersect';
 
@@ -99,7 +100,9 @@ export const PhotoList = () => {
               height={height}
               width={colWidth}
             >
-              <PhotoWithLink photoId={id} imgWidth={BASE_COLUMN_WIDTH} />
+              <ErrorBoundary fallback={<div>Problem with image!</div>}>
+                <PhotoWithLink photoId={id} imgWidth={BASE_COLUMN_WIDTH} />
+              </ErrorBoundary>
             </PhotoListItem>
           );
         })}

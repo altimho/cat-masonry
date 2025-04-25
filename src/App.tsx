@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router';
 import { css, Global } from '@emotion/react';
+import { ErrorBoundary } from 'react-error-boundary';
 
 const globalCss = css({
   body: {
@@ -51,7 +52,11 @@ export const App = () => {
         </div>
       </div>
       <div>
-        <Outlet />
+        <ErrorBoundary
+          fallback={<div>Unknown problem. Try to refresh page!</div>}
+        >
+          <Outlet />
+        </ErrorBoundary>
       </div>
     </>
   );
