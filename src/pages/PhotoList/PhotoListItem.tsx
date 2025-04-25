@@ -10,14 +10,14 @@ interface PhotoListItemProps {
 
 const photoListItemWrappeerCss = css({
   position: 'absolute',
+  overflow: 'hidden',
 });
 
 const photoListItemCss = css({
   width: '100%',
   height: '100%',
-  border: '4px solid #FFF1D5',
-  margin: '-4px',
   background: 'lightgray',
+  margin: '4px',
 });
 
 export const PhotoListItem = ({

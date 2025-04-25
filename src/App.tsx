@@ -5,22 +5,21 @@ const globalCss = css({
   body: {
     margin: 0,
     padding: 0,
-    backgroundColor: '#FFF1D5',
+    backgroundColor: '#FFECDB',
     fontFamily: 'sans-serif',
   },
 });
 
 const headCss = css({
-  backgroundColor: '#9FB3DF',
+  backgroundColor: '#60B5FF',
   padding: '0.5rem 1.5rem',
   margin: 0,
-  marginBottom: '4px',
-  color: '#FFF1D5',
+  color: '#FFECDB',
   display: 'flex',
   flexWrap: 'wrap',
   justifyContent: 'space-between',
   a: {
-    color: '#FFF1D5',
+    color: '#FFECDB',
   },
 });
 
