@@ -18,6 +18,9 @@ const photoListItemCss = css({
   height: '100%',
   background: 'lightgray',
   margin: '4px',
+  '@media (max-width: 600px)': {
+    margin: '2px 0',
+  },
 });
 
 export const PhotoListItem = ({
