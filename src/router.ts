@@ -1,8 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 
 import { App } from './App.tsx';
-import { PhotoList, photoListLoader } from './pages/PhotoList';
-import { PhotoDetails, photoDetailsLoader } from './pages/PhotoDetails';
 
 export const router = createBrowserRouter([
   {
@@ -11,13 +9,26 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        Component: PhotoList,
-        loader: photoListLoader,
+        lazy: async () => {
+          const { PhotoList, photoListLoader } = await import(
+            './pages/PhotoList'
+          );
+
+          return {
+            Component: PhotoList,
+            loader: photoListLoader,
+          };
+        },
       },
       {
         path: ':photoId',
-        Component: PhotoDetails,
-        loader: photoDetailsLoader,
+        lazy: async () => {
+          const { PhotoDetails, photoDetailsLoader } = await import(
+            './pages/PhotoDetails'
+          );
+
+          return { Component: PhotoDetails, loader: photoDetailsLoader };
+        },
       },
     ],
   },
