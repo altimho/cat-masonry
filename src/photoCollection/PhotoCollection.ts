@@ -1,6 +1,4 @@
-interface PhotoResource {
-  id: number;
-}
+import { PhotoResource } from '../PexelsClient';
 
 export class PhotoCollection {
   protected static _instance = new PhotoCollection();
