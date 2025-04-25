@@ -1,5 +1,6 @@
 import { Link, useLoaderData } from 'react-router';
 import { css } from '@emotion/react';
+import { useMemo } from 'react';
 
 import { type photoDetailsLoader } from './loader';
 
@@ -44,10 +45,14 @@ const detailsCss = css({
 export const PhotoDetails = () => {
   const { photo } = useLoaderData<typeof photoDetailsLoader>();
 
-  const src = new URL(photo.src.original);
-  src.searchParams.set('auto', 'compress');
-  src.searchParams.set('cs', 'tinysrgb');
-  src.searchParams.set('w', WIDTH.toString());
+  const src = useMemo(() => {
+    const url = new URL(photo.src.original);
+    url.searchParams.set('auto', 'compress');
+    url.searchParams.set('cs', 'tinysrgb');
+    url.searchParams.set('w', WIDTH.toString());
+
+    return url.toString();
+  }, [photo.src.original]);
 
   return (
     <div css={wrapperCss}>
@@ -62,7 +67,7 @@ export const PhotoDetails = () => {
           href={photo.url}
           style={{ backgroundColor: photo.avg_color }}
         >
-          <img src={src.toString()} alt={photo.alt} />
+          <img src={src} alt={photo.alt} />
         </a>
         <section css={detailsCss}>
           <header>
