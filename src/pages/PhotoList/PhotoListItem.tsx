@@ -1,4 +1,5 @@
 import { css } from '@emotion/react';
+import React from 'react';
 
 interface PhotoListItemProps {
   ref?: React.Ref<HTMLDivElement> | null;
@@ -23,7 +24,7 @@ const photoListItemCss = css({
   },
 });
 
-export const PhotoListItem = ({
+export const PhotoListItemBase = ({
   children,
   ref,
   top,
@@ -46,3 +47,5 @@ export const PhotoListItem = ({
     </div>
   );
 };
+
+export const PhotoListItem = React.memo(PhotoListItemBase);
