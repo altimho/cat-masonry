@@ -1,11 +1,13 @@
 import { createBrowserRouter } from 'react-router';
 
 import { App } from './App.tsx';
+import { AppError } from './AppError';
 
 export const router = createBrowserRouter([
   {
     path: '/',
     Component: App,
+    ErrorBoundary: AppError,
     children: [
       {
         index: true,
