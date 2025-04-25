@@ -34,6 +34,7 @@ const titleCss = css({
   padding: 0,
   textShadow: '0 0.25rem 0.5rem rgba(0,0,0,0.25)',
   textWrap: 'nowrap',
+
   '@media (max-width: 600px)': {
     fontSize: '18vw ',
   },
