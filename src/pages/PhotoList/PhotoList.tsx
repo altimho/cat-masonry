@@ -1,6 +1,6 @@
-import { useFetcher, useLoaderData, useLocation } from 'react-router';
+import { useFetcher, useLoaderData } from 'react-router';
 import { css } from '@emotion/react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useIntersect } from '../../hooks/useIntersect';
 
@@ -10,8 +10,9 @@ import { buildMasonry } from './utils/buildMasonry';
 import { useFlexibleCols } from './hooks/useFlexibleCols';
 import { useScrollMargins } from './hooks/useScrollMargins';
 import { PhotoListItem } from './PhotoListItem';
+import { useScrollToHash } from './hooks/useScrollToHash';
 
-const COL_WIDTH = 300;
+const BASE_COLUMN_WIDTH = 300;
 const VISIBILITY_GAP = 200;
 const LOAD_MORE_GAP = 200;
 
@@ -37,23 +38,16 @@ export const PhotoList = () => {
   const { photoIds = initialPhotoIds, page = 1 } = fetcher.data ?? {};
 
   const { resizableRef, cols, colWidth } = useFlexibleCols<HTMLDivElement>({
-    colWidth: COL_WIDTH,
+    colWidth: BASE_COLUMN_WIDTH,
   });
 
-  const { hash } = useLocation();
-  const idToScroll = hash.slice(1);
-  const hashItemRef = useRef<HTMLDivElement>(null);
-  const masonryIsRendered = cols > 0;
-
-  useEffect(() => {
-    if (masonryIsRendered) {
-      hashItemRef.current?.scrollIntoView();
-    }
-  }, [masonryIsRendered]);
+  const { hashItemRef, hashIdToScroll } = useScrollToHash<HTMLDivElement>({
+    isRendered: cols > 0,
+  });
 
   const masonry = useMemo(() => {
     return buildMasonry(cols, photoIds, colWidth);
-  }, [photoIds, cols]);
+  }, [photoIds, cols, colWidth]);
 
   const { containerRef, begin, end } = useScrollMargins<HTMLDivElement>({
     visibilityGap: VISIBILITY_GAP,
@@ -63,17 +57,17 @@ export const PhotoList = () => {
     const items = masonry.getVisibleItems(begin, end);
 
     if (
-      idToScroll &&
-      items.findIndex((item) => item.id === Number(idToScroll)) < 0
+      hashIdToScroll &&
+      items.findIndex((item) => item.id === Number(hashIdToScroll)) < 0
     ) {
-      const item = masonry.getItemById(Number(idToScroll));
+      const item = masonry.getItemById(Number(hashIdToScroll));
       if (item) {
         items.push(item);
       }
     }
 
     return items;
-  }, [begin, end, masonry, idToScroll]);
+  }, [begin, end, masonry, hashIdToScroll]);
 
   const intersectCallback = useCallback(
     (entry: IntersectionObserverEntry | undefined) => {
@@ -93,7 +87,8 @@ export const PhotoList = () => {
         style={{ height: masonry.height, width: colWidth * cols }}
       >
         {items.map(({ id, top, height, column }) => {
-          const ref = id.toString() === idToScroll ? hashItemRef : undefined;
+          const ref =
+            id.toString() === hashIdToScroll ? hashItemRef : undefined;
 
           return (
             <PhotoListItem
@@ -104,7 +99,7 @@ export const PhotoList = () => {
               height={height}
               width={colWidth}
             >
-              <PhotoWithLink photoId={id} imgWidth={COL_WIDTH} />
+              <PhotoWithLink photoId={id} imgWidth={BASE_COLUMN_WIDTH} />
             </PhotoListItem>
           );
         })}
